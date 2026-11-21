@@ -30,8 +30,15 @@ if (typeof post !== 'object' || post === null || Array.isArray(post)) {
 if (typeof post.url !== 'string' || post.url.length === 0) {
   throw new Error('POST.json must name a url string');
 }
+const X_POST_URL = /^https:\/\/(www\.|mobile\.)?(x\.com|twitter\.com)\/[^/]+\/(status|statuses|i\/web\/status)\/\d+([?#].*)?$/;
+if (!X_POST_URL.test(post.url)) {
+  throw new Error(`POST.json url is not an X post address: ${post.url}`);
+}
 
 mkdirSync(OUTPUT_DIR, { recursive: true });
 copyFileSync(source, join(OUTPUT_DIR, 'POST.json'));
 const written = statSync(join(OUTPUT_DIR, 'POST.json')).size;
+if (written !== bytes.length) {
+  throw new Error(`copied POST.json is ${written} bytes, expected ${bytes.length}`);
+}
 console.log(`wrote POST.json (${written} bytes): ${post.url}`);
